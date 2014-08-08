@@ -1,0 +1,127 @@
+body
+{
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    background-color: #787878;
+}
+
+a
+{
+    text-decoration: none;
+    color: inherit;
+}
+
+p#links
+{
+    margin: 0px;
+    text-align: center;
+    font-size: small;
+    font-weight: bold;
+}
+
+.col1
+{
+    border: solid;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.mainheader
+{
+    text-align: center;
+    font-size: 20px;
+}
+
+.col2
+{
+    float: right;
+}
+
+.mainbody
+{
+    margin-left: auto;
+    margin-right: auto;
+    width: 80%;
+}
+
+.container
+{
+    text-decoration: none;
+    border: 0 none;
+    padding: 0 5px 0 5px;
+    height: 22px;
+}
+
+.hidden
+{
+    display: none;
+    text-align: center;
+}
+
+tr.data
+{
+    padding: 5px 10px 15px;
+    background-color:#F4F4F8;
+}
+
+div#login
+{
+    text-align: center;
+}
+
+div#header
+{
+    font-size: 30px;
+    text-align: center;
+}
+
+#box
+{
+    width:70%;  
+    display: none;
+    padding:5px;  
+    border:2px solid #FADDA9;  
+    background-color:#FDF4E1;  
+}
+
+#tableimg
+{
+    text-decoration: none;
+    border: 0 none;
+    padding: 0 2px 0 2px;
+    height: 22px;
+    
+}
+
+#targets
+{
+    margin-left: auto;
+    margin-right: auto;
+    border-collapse: collapse;
+}
+
+#targets td, #targets th 
+{
+    font-size: 13px;
+    border: 1px solid #000000;
+    padding: 3px 3px 2px 3px;
+}
+
+#targets th 
+{
+    font-size: 15px;
+    text-align: left;
+    padding-top: 7px;
+    padding-bottom: 7px;
+    background-color: #297A29;
+    border-bottom: double;
+}
+
+#targets tr
+{
+    background-color: #D8D8D8;
+}
+
+.results
+{
+    font-weight: bold;
+}
