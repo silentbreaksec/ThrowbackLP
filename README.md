@@ -24,5 +24,5 @@
 4. Allow remote access to MySQL if necessary (if more than one LP)
   1. vim /etc/mysql/my.cnf and change bind-address to 0.0.0.0
   2. GRANT ALL ON throwbackcp.* TO tblp@'<ip_address>' IDENTIFIED BY 'ThrowbackPwnage!@#';
-	iii. FLUSH PRIVILEGES;
+  3. FLUSH PRIVILEGES;
 
