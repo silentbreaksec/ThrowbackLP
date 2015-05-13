@@ -1,5 +1,5 @@
 0.	Prepare the environment
-	a.	apt-get install apache2 mysql-server php5 phpmyadmin curl libcurl3 php5-curl build-essential php-pear
+	a.	apt-get install apache2 mysql-server php5 phpmyadmin curl libcurl3 php5-curl php5-mysql build-essential php-pear
 1.	Configure Apache to allow SSL connections.
 	a.	wget http://librarian.launchpad.net/7477840/apache2-ssl.tar.gz
 	b.	tar -zxvf apache2-ssl.tar.gz
