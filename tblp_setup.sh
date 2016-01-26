@@ -18,7 +18,7 @@ echo "${green}[+] Installing a few dependencies (Apache2, PHP 5, Git, etc.) for 
 echo "[+] This could take a while...${end}"
 
 apt-get update > /dev/null
-apt-get -y install zip ntp git apt-utils dialog apache2 php5 php5-mysql > /dev/null
+apt-get -y install zip ntp git apt-utils dialog apache2 php5 php5-mysql &> /dev/null
 
 while true; do
 	read -p "${red}[+] Would you like to enable SSL? (y/n)${end} " yn
@@ -65,7 +65,7 @@ if [ "$setupssl" = true ] ; then
 	fi
 
 	echo "${green}[+] Restarting the Apache server.${end}"
-	service apache2 restart > /dev/null
+	service apache2 restart &> /dev/null
 fi
 
 echo "${green}[+] Hardening the Apache web server.${end}"
@@ -75,15 +75,15 @@ sed -i 's/Options Indexes/Options/g' /etc/apache2/apache2.conf
 sed -i 's/ServerTokens OS/ServerTokens Prod/g' /etc/apache2/conf-available/security.conf
 sed -i 's/ServerSignature On/ServerSignature Off/g' /etc/apache2/conf-available/security.conf
 
-update-rc.d apache2 defaults > /dev/null
-update-rc.d apache2 enable > /dev/null
+update-rc.d apache2 defaults &> /dev/null
+update-rc.d apache2 enable &> /dev/null
 
 echo "${green}[+] Checking out ThrowbackLP from GitHub.${end}"
 cd /tmp/
 git clone $GITURL > /dev/null
 
 while true; do
-	read -p "${red}[+] Enter the root WWW directory, or leave blank for the default. (i.e. /var/www/html)${end}" wwwrootdir
+	read -p "${red}[+] Enter the root WWW directory, or leave blank for the default. (i.e. /var/www/html)${end} " wwwrootdir
 	if [ "${wwwrootdir}" == "" ]; then
 		wwwrootdir=/var/www/html
 	fi
@@ -106,7 +106,7 @@ while true; do
 		
 		primarylp=true
 		mkdir $wwwrootdir/cp
-		mkdir $wwwrootdir/scripts
+		mkdir $wwwrootdir/down
 
 		while true; do
 			read -p "${red}[+] Enter the MySQL root password. If you haven't installed MySQL, enter the password you'd like to use:${end} " mysqlpw1
@@ -143,10 +143,10 @@ done
 if [ "$primarylp" = true ] ; then
 	
 	echo "${green}[+] Installing MySQL server.${end}"
-	apt-get --reinstall install bsdutils > /dev/null
+	apt-get --reinstall install bsdutils &> /dev/null
 	debconf-set-selections <<< 'mysql-server mysql-server/root_password password '$mysqlpw1
 	debconf-set-selections <<< 'mysql-server mysql-server/root_password_again password '$mysqlpw1
-	apt-get -y install mysql-server > /dev/null
+	apt-get -y install mysql-server &> /dev/null
 
 	echo "${green}[+] Installing SQL database and tables.${end}"
 	mysql -u root -p$mysqlpw1 -e "create database "$DBNAME";"
@@ -206,10 +206,10 @@ if [ "$primarylp" = true ] ; then
 	cp -r $TBDIR/cp/* $wwwrootdir/cp/
 	
 	sed -i 's/bind-address.*/bind-address = 0.0.0.0/g' /etc/mysql/my.cnf
-	service mysql restart > /dev/null
+	service mysql restart &> /dev/null
 
-	update-rc.d mysql defaults > /dev/null
-	update-rc.d mysql enable > /dev/null
+	update-rc.d mysql defaults &> /dev/null
+	update-rc.d mysql enable &> /dev/null
 
 else
 	
@@ -261,13 +261,21 @@ if [ "$installmsf" == true ]; then
 	echo "${green}[+] Installing additional dependencies.${end}"
 	apt-get -y install php5-dev php-pear build-essential > /dev/null
 
-	echo "${green}[+] Installing and configuring MsgPack for PHP. Watch for any errors!${end}"
-	pecl install channel://pecl.php.net/msgpack-0.5.5 
+	echo "${green}[+] Installing and configuring MsgPack for PHP. ${end}${red}Watch for any errors!${end}"
+	#pecl install channel://pecl.php.net/msgpack-0.5.5
+	wget --quiet https://pecl.php.net/get/msgpack-0.5.7.tgz > /dev/null
+	tar -zxvf msgpack-0.5.7.tgz > /dev/null
+	cd msgpack-0.5.7 > /dev/null
+	phpize > /dev/null
+	./configure > /dev/null
+	make && make install > /dev/null
+	cd .. > /dev/null
+	rm -rf msgpack-0.5.7 > /dev/null
+
 	echo "extension=msgpack.so" >> /etc/php5/apache2/php.ini
-	service apache2 restart > /dev/null
 	
 	echo "${green}[+] Installing the last few dependencies.${end}"
-	apt-get -y install curl libcurl3 libcurl3-dev php5-curl > /dev/null
+	apt-get -y install curl libcurl3 libcurl3-dev php5-curl &> /dev/null
 
 	machinetype=`uname -m`
 	cd /tmp/
@@ -283,7 +291,6 @@ if [ "$installmsf" == true ]; then
 	echo "${green}[+] Download complete! Starting the Metasploit installer.${end}"
 
 	chmod +x /tmp/metasploit-latest-linux*.run
-	
 	/tmp/metasploit-latest-linux*.run
 	
 	echo "${red}[+] Don't forget to register Metasploit! Go to https://localhost:3790 to create a user account and obtain/activate a license key.${end}"
@@ -293,7 +300,9 @@ if [ "$installmsf" == true ]; then
 	sed -i 's/\$METASPLOIT.*/\$METASPLOIT  = "127.0.0.1";/g' $wwwrootdir/cp/includes/conf.php
 	sed -i 's/\$MSFUSERNAME.*/\$MSFUSERNAME  = "msf";/g' $wwwrootdir/cp/includes/conf.php
 
-	echo "${green}[+] Start Metasploit via 'msfconsole /root/msgrpc.rc', and you **should** be able to generate payload in the ThrowbackLP interface.${end}"
+	echo "${green}[+] Start Metasploit via 'msfconsole -r /root/msgrpc.rc', and you **should** be able to generate payload in the ThrowbackLP interface.${end}"
+	echo "${green}[+] It's also a good idea to create the Metasploit console in a screen session.${end}"
+	service apache2 restart &> /dev/null
 fi
 
 echo "${green}[+] All done. Thanks for playing!${end}"	
