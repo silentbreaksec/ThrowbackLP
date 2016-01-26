@@ -4,14 +4,15 @@
 
 ob_start();
 require_once('./includes/lock.php');
-require_once('./includes/conf.php');
+//require_once('./includes/template.php');
 require_once('./includes/mysql.php');
 require_once('./includes/msfrpcd.php');
+require_once('./includes/conf.php');
 
 $error = 0;
 
 if (isset($_POST['submit'])) {
-
+	
 	//SANITIZE INPUTS!
 	$filename = $_POST['filename'];
 	$payload = $_POST['payload'];
@@ -106,10 +107,17 @@ if (isset($_POST['submit'])) {
 				print "<p class=\"alert alert-info\" style='text-align:center; font-weight:bold'>An error occurred. Check your inputs!</p>";
 			}
 			
-			use_payload($METASPLOIT, $payloadtype, $output, $ipaddress, $port, $ipaddress, $port, $encoder, $filename);
-			print "<p class=\"alert alert-info\" style='text-align:center; font-weight:bold'>Payload creation complete and It can be downloaded from the "; ?> $OUTPUTDIR <?php print " specified in conf.php.<br>Meterpreter handler commands are below.</p>";
-			print "<pre>$msfrc</pre>";
-
+			$created = use_payload($METASPLOIT, $MSFUSERNAME, $MSFPASSWORD, $payloadtype, $output, $ipaddress, $port, $ipaddress, $port, $encoder, $filename);
+			
+			if($created == true)
+			{
+				print "<p class=\"alert alert-info\" style='text-align:center; font-weight:bold'>Payload creation complete and It can be downloaded from the "; ?> $OUTPUTDIR <?php print " specified in conf.php.<br>Meterpreter handler commands are below.</p>";
+				print "<pre>$msfrc</pre>";
+			}
+			else
+			{
+				print "<p class=\"alert alert-danger\" style='text-align:center; font-weight:bold'>Failed to create payload! Please try again.</p>";
+			}
 			print "<br><br>";
 
 			/**
@@ -194,7 +202,7 @@ if (isset($_POST['submit'])) {
 <div class="modal-header">
 	<button type="button" class="close" onclick="$('#metcreatorForm').resetForm();
 				$('#outputResponse').html('');" data-dismiss="modal" aria-hidden="true">&times;</button>
-	<h4 class="modal-title" id="myModalLabel">Metcreator - <?php print "Current time is " . date("M j, Y g:i a", time()); ?></h4>
+	<h4 class="modal-title" id="myModalLabel">Create Meterpreter Payload</h4>
 </div>
 
 <div class="modal-body">
@@ -332,15 +340,6 @@ if (isset($_POST['submit'])) {
 	<button type="button" onclick="$('#metcreatorForm').resetForm();
 				$('#outputResponse').html('');" class="btn btn-danger" data-dismiss="modal">Close</button>
 </div>
-<?php
-if (isset($_POST['submit'])) 
-{
-
-	print "SDLKFJALKJSFLASJDL";
-
-}
-
-?>
 </div>
 
 <?php
