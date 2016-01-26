@@ -98,19 +98,3 @@ CREATE TABLE IF NOT EXISTS `users` (
   `lastlogin` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `users`
---
-
-INSERT INTO `users` (`id`, `username`, `password`, `lastlogin`) VALUES
-(0, 'root', '31da658b63389c334497db2add58609bd5ba9c32', '1317225558');
-
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
-
-use throwbackcp;
-
-GRANT ALL ON throwbackcp.* to tblp@localhost IDENTIFIED BY 'ThrowbackPwnage!@#'; 
-GRANT ALL ON throwbackcp.* to tblp@'%' IDENTIFIED BY 'ThrowbackPwnage!@#'; 
